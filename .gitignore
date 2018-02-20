@@ -1,4 +1,5 @@
 /dao/config
 *yaml
+*yml
 .idea
 *.iml
