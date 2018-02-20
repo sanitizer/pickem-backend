@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	//"log"
 
 	"github.com/sanitizer/cloud_sql_dao/dao"
 )
@@ -11,15 +11,16 @@ import (
 var db *sql.DB
 
 func main() {
-	dao.RunMigration()
-
-	var err error
-	con := new(dao.CloudConnection)
-	db, err = con.GetNewConnection()
-	if err != nil {
-		log.Fatal("Error connection ", err.Error())
-	}
-	handler()
+	dao.GetDataFromFireBase()
+	//dao.RunMigration()
+	//
+	//var err error
+	//con := new(dao.CloudConnection)
+	//db, err = con.GetNewConnection()
+	//if err != nil {
+	//	log.Fatal("Error connection ", err.Error())
+	//}
+	//handler()
 }
 
 func handler() {

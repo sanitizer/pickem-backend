@@ -7,6 +7,12 @@ import (
 	"github.com/mattes/migrate"
 	"github.com/mattes/migrate/database/mysql"
 	_ "github.com/mattes/migrate/source/file"
+
+	firebase "firebase.google.com/go"
+	"google.golang.org/api/option"
+	"golang.org/x/net/context"
+	"google.golang.org/api/iterator"
+	"fmt"
 )
 
 func RunMigration() {
@@ -36,3 +42,40 @@ func RunMigration() {
 		log.Println("Migration stopped. Error while running migration steps: ", err.Error())
 	}
 }
+
+func GetDataFromFireBase()  {
+	ctx := context.Background()
+	opt := option.WithCredentialsFile("dao/config/firebase.json")
+	app, err := firebase.NewApp(ctx, nil, opt)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	client, err := app.Firestore(ctx)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer client.Close()
+
+	iter := client.Collection("users").Documents(ctx)
+
+	for {
+		doc, err := iter.Next()
+
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("Failed to iterate: %v", err)
+		}
+
+		fmt.Println(doc.Data())
+		fmt.Println(doc.Data()["displayName"])
+	}
+}
+
+// INSERT INTO table_tags (tag) VALUES ('tag_a'),('tab_b'),('tag_c') ON DUPLICATE KEY UPDATE tag=tag; UPSERT QUERY EXAMPLE
