@@ -13,6 +13,9 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/api/iterator"
 	"fmt"
+	"github.com/sanitizer/cloud_sql_dao/dao/model"
+	//"go/doc"
+	"time"
 )
 
 func RunMigration() {
@@ -48,6 +51,8 @@ func GetDataFromFireBase()  {
 	opt := option.WithCredentialsFile("dao/config/firebase.json")
 	app, err := firebase.NewApp(ctx, nil, opt)
 
+	users := make([]model.User, 0)
+
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -61,21 +66,82 @@ func GetDataFromFireBase()  {
 	defer client.Close()
 
 	iter := client.Collection("users").Documents(ctx)
-
+	count := 0
 	for {
-		doc, err := iter.Next()
+		document, err := iter.Next()
 
 		if err == iterator.Done {
 			break
 		}
+		count = count +1
 
 		if err != nil {
 			log.Fatalf("Failed to iterate: %v", err)
 		}
 
-		fmt.Println(doc.Data())
-		fmt.Println(doc.Data()["displayName"])
+		data := document.Data()
+
+		var bn = ""
+		var dis = ""
+		var disp = ""
+		var em = ""
+		var grav = ""
+		var tl = ""
+		var la time.Time
+		var li = ""
+
+		if data["battleNet"] != nil {
+			bn = data["battleNet"].(string)
+		}
+
+		if data["discord"] != nil {
+			dis = data["discord"].(string)
+		}
+
+		if  data["displayName"] != nil {
+			disp = data["displayName"].(string)
+		}
+
+		if data["email"] != nil {
+			em = data["email"].(string)
+		}
+
+		if  data["gravatar"] != nil {
+			grav =  data["gravatar"].(string)
+		}
+
+		if data["teamLogo"] != nil {
+			tl = data["teamLogo"].(string)
+		}
+
+		if data["lastActive"] != nil {
+			la = time.Unix(data["lastActive"].(int64), int64(0))
+		}
+
+		if data["id"] != nil {
+			li = data["id"].(string)
+		}
+
+		user:= model.User{BattleNetId: bn,
+				  DiscordId: dis,
+				  DisplayName: disp,
+				  Email: em,
+				  GrAvatar: grav,
+				  TeamLogo: tl,
+				  LastActive: la,
+				  LegacyId: li}
+
+		fmt.Println(user)
+		users = append(users, user)
 	}
+
+
+	fmt.Println(len(users))
+	fmt.Println(count)
+
+	timeStamp := time.Unix(int64(1519444638), int64(0))
+	fmt.Println(timeStamp.Unix())
+
 }
 
 // INSERT INTO table_tags (tag) VALUES ('tag_a'),('tab_b'),('tag_c') ON DUPLICATE KEY UPDATE tag=tag; UPSERT QUERY EXAMPLE

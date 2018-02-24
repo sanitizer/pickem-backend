@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"time"
 )
 
 type User struct {
@@ -13,11 +14,11 @@ type User struct {
 	Email       string
 	GrAvatar    string
 	TeamLogo    string
-	LastActive  string
+	LastActive  time.Time
 }
 
 func (this User) String() string {
-	return fmt.Sprintf("{ id: %d, legacyId: %s, battleNetId: %s, discordId: %s, displayName: %s, email: %s, gravatar: %s, teamLogo: %s, lastActive: %s }",
+	return fmt.Sprintf("{ id: %d, legacyId: %s, battleNetId: %s, discordId: %s, displayName: %s, email: %s, gravatar: %s, teamLogo: %s, lastActive: %d }",
 		this.Id,
 		this.LegacyId,
 		this.BattleNetId,
@@ -26,5 +27,5 @@ func (this User) String() string {
 		this.Email,
 		this.GrAvatar,
 		this.TeamLogo,
-		this.LastActive)
+		this.LastActive.Unix())
 }
