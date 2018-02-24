@@ -66,4 +66,5 @@ func (this *CloudConnection) readConfig() {
 	this.cfg = mysql.Cfg(temp.ConnectionName, temp.User, temp.Password)
 	this.cfg.DBName = temp.Database
 	this.cfg.MultiStatements = true
+	this.cfg.Collation = "utf8mb4_unicode_ci"
 }

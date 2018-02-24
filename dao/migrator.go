@@ -12,10 +12,10 @@ import (
 	"google.golang.org/api/option"
 	"golang.org/x/net/context"
 	"google.golang.org/api/iterator"
-	"fmt"
+	//"fmt"
 	"github.com/sanitizer/cloud_sql_dao/dao/model"
 	//"go/doc"
-	"time"
+	"fmt"
 )
 
 func RunMigration() {
@@ -46,7 +46,7 @@ func RunMigration() {
 	}
 }
 
-func GetDataFromFireBase()  {
+func GetDataFromFireBase() string {
 	ctx := context.Background()
 	opt := option.WithCredentialsFile("dao/config/firebase.json")
 	app, err := firebase.NewApp(ctx, nil, opt)
@@ -79,68 +79,29 @@ func GetDataFromFireBase()  {
 			log.Fatalf("Failed to iterate: %v", err)
 		}
 
-		data := document.Data()
-
-		var bn = ""
-		var dis = ""
-		var disp = ""
-		var em = ""
-		var grav = ""
-		var tl = ""
-		var la time.Time
-		var li = ""
-
-		if data["battleNet"] != nil {
-			bn = data["battleNet"].(string)
-		}
-
-		if data["discord"] != nil {
-			dis = data["discord"].(string)
-		}
-
-		if  data["displayName"] != nil {
-			disp = data["displayName"].(string)
-		}
-
-		if data["email"] != nil {
-			em = data["email"].(string)
-		}
-
-		if  data["gravatar"] != nil {
-			grav =  data["gravatar"].(string)
-		}
-
-		if data["teamLogo"] != nil {
-			tl = data["teamLogo"].(string)
-		}
-
-		if data["lastActive"] != nil {
-			la = time.Unix(data["lastActive"].(int64), int64(0))
-		}
-
-		if data["id"] != nil {
-			li = data["id"].(string)
-		}
-
-		user:= model.User{BattleNetId: bn,
-				  DiscordId: dis,
-				  DisplayName: disp,
-				  Email: em,
-				  GrAvatar: grav,
-				  TeamLogo: tl,
-				  LastActive: la,
-				  LegacyId: li}
-
-		fmt.Println(user)
+		user := new(model.User).Build(document.Data())
 		users = append(users, user)
+		//fmt.Println(user.DisplayName)
 	}
-
-
-	fmt.Println(len(users))
 	fmt.Println(count)
 
-	timeStamp := time.Unix(int64(1519444638), int64(0))
-	fmt.Println(timeStamp.Unix())
+	var query = "INSERT INTO app_user " + model.USER_INSERT_COLS + " VALUES"
+
+	anotherCounter := 0
+	for _, user := range users {
+		if anotherCounter == 0 {
+			query = query + user.StringForInsert()
+		} else {
+			query = query + "," + user.StringForInsert()
+		}
+		anotherCounter = anotherCounter + 1
+	}
+
+	//fmt.Println(query)
+	return query
+
+	//fmt.Println(len(sers))
+	//fmt.Println(count)
 
 }
 

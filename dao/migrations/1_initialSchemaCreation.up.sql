@@ -4,11 +4,11 @@ CREATE TABLE IF NOT EXISTS app_user (
   id          INT          NOT NULL AUTO_INCREMENT,
   battleNetId VARCHAR(100),
   discordId   VARCHAR(100),
-  displayName VARCHAR(100) NOT NULL,
+  displayName VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   email       VARCHAR(100) NOT NULL,
   gravatar    LONGTEXT,
   teamLogo    LONGTEXT,
-  lastActive  TIMESTAMP,
+  lastActive  TIMESTAMP    NULL DEFAULT NULL,
   PRIMARY KEY (id)
 );
 
