@@ -30,7 +30,7 @@ func main() {
 func BuildFromRawData(rawData []map[string]interface{}, entity model.DaoModel) string {
 	data := make([]model.DaoModel, 0)
 	for _, v := range rawData {
-		datum := entity.Build(v)
+		datum := entity.BuildFromFirestoreData(v)
 		data = append(data, datum)
 	}
 

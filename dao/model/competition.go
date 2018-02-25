@@ -102,7 +102,7 @@ func (this Competition) StringForInsert() string {
 		isActive)
 }
 
-func (this Competition) Build(data map[string]interface{}) DaoModel {
+func (this Competition) BuildFromFirestoreData(data map[string]interface{}) DaoModel {
 	var legacyId = ""
 	var winstons = 0
 	var name = ""

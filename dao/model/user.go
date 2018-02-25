@@ -85,7 +85,7 @@ func (this User) StringForInsert() string {
 		lastActive)
 }
 
-func (this User) Build(data map[string]interface{}) DaoModel {
+func (this User) BuildFromFirestoreData(data map[string]interface{}) DaoModel {
 	var battleNet = ""
 	var discord = ""
 	var display = ""
