@@ -6,7 +6,10 @@ import (
 	"strings"
 )
 
-const USER_INSERT_COLS = "(legacyId, battleNetId, discordId, displayName, email, gravatar, teamLogo, lastActive)"
+const (
+	USER_INSERT_COLS = "(legacyId, battleNetId, discordId, displayName, email, gravatar, teamLogo, lastActive)"
+	USER_INSERT_PARTIAL_QUERY = "INSERT INTO app_user " + USER_INSERT_COLS + " "
+)
 
 type User struct {
 	Id          int
@@ -82,7 +85,7 @@ func (this User) StringForInsert() string {
 		lastActive)
 }
 
-func (this User) Build(data map[string]interface{}) User {
+func (this User) Build(data map[string]interface{}) DaoModel {
 	var battleNet = ""
 	var discord = ""
 	var display = ""
@@ -134,4 +137,8 @@ func (this User) Build(data map[string]interface{}) User {
 	this.LegacyId = legacyId
 
 	return this
+}
+
+func (this User) GetPartialInsertQuery () string {
+	return USER_INSERT_PARTIAL_QUERY
 }

@@ -1,75 +1,83 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
-	//"log"
-
 	"github.com/sanitizer/cloud_sql_dao/dao"
-	//"log"
-	//"strconv"
 	"log"
+	"github.com/sanitizer/cloud_sql_dao/dao/model"
 	"strconv"
 )
 
-var db *sql.DB
-
 func main() {
-	query := dao.GetDataFromFireBase()
+	rawData, err := dao.GetDataFromFireBase("competitions")
+
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	//fmt.Println(query)
 	//dao.RunMigration()
 
+	query := BuildFromRawData(rawData, model.Competition{})
+	inserted, err := RunInsertQuery(query)
+
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	log.Println(strconv.Itoa(int(inserted)))
+}
+
+func BuildFromRawData(rawData []map[string]interface{}, entity model.DaoModel) string {
+	data := make([]model.DaoModel, 0)
+	for _, v := range rawData {
+		datum := entity.Build(v)
+		data = append(data, datum)
+	}
+
+	var query = entity.GetPartialInsertQuery()
+
+	anotherCounter := 0
+	for _, datum := range data {
+		if anotherCounter == 0 {
+			query = query + datum.StringForInsert()
+		} else {
+			query = query + "," + datum.StringForInsert()
+		}
+		anotherCounter = anotherCounter + 1
+	}
+
+	return query
+}
+
+func RunInsertQuery(query string) (int64, error) {
 	var err error
 	con := new(dao.CloudConnection)
-	db, err = con.GetNewConnection()
+	db, err := con.GetNewConnection()
 	if err != nil {
-		log.Fatal("Error connection ", err.Error())
+		return int64(0), err
 	}
+	defer db.Close()
 
-	tx, err := db.Begin()
+	transaction, err := db.Begin()
 	if err != nil {
-		log.Fatal("Error starting transaction ", err.Error())
+		return int64(0), err
 	}
-	defer tx.Rollback()
+	defer transaction.Rollback()
+
 	stmt, err := db.Prepare(query)
 	if err != nil {
-		log.Fatal("Error preparing statement " + err.Error())
+		return int64(0), err
 	}
-
 	defer stmt.Close()
 
 	result, err := stmt.Exec()
-
 	if err != nil {
-		log.Fatal("Error inserting rows " + err.Error())
+		return int64(0), err
 	}
 
 	inserted, err := result.RowsAffected()
-
 	if err != nil {
-		log.Fatal("Error getting inserted rows count " + err.Error())
+		return int64(0), err
 	}
-	fmt.Println("inserted " + strconv.Itoa(int(inserted)))
-	//handler()
+	return inserted, nil
 }
-
-func handler() {
-	rows, err := db.Query("select version from schema_migrations")
-	if err != nil {
-		fmt.Println("error quering db " + err.Error())
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var version int
-		if err := rows.Scan(&version); err != nil {
-			fmt.Println("error scanning row " + err.Error())
-			return
-		}
-		fmt.Println(version)
-	}
-}
-
-

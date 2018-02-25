@@ -12,10 +12,6 @@ import (
 	"google.golang.org/api/option"
 	"golang.org/x/net/context"
 	"google.golang.org/api/iterator"
-	//"fmt"
-	"github.com/sanitizer/cloud_sql_dao/dao/model"
-	//"go/doc"
-	"fmt"
 )
 
 func RunMigration() {
@@ -46,63 +42,41 @@ func RunMigration() {
 	}
 }
 
-func GetDataFromFireBase() string {
+func GetDataFromFireBase(entity string) ([]map[string]interface{}, error) {
 	ctx := context.Background()
-	opt := option.WithCredentialsFile("dao/config/firebase.json")
-	app, err := firebase.NewApp(ctx, nil, opt)
-
-	users := make([]model.User, 0)
+	options := option.WithCredentialsFile("dao/config/firebase.json")
+	app, err := firebase.NewApp(ctx, nil, options)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	client, err := app.Firestore(ctx)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	defer client.Close()
 
-	iter := client.Collection("users").Documents(ctx)
-	count := 0
+	iter := client.Collection(entity).Documents(ctx)
+	result := make([]map[string]interface{}, 0)
+
 	for {
 		document, err := iter.Next()
 
 		if err == iterator.Done {
 			break
 		}
-		count = count +1
 
 		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
+			return nil, err
 		}
 
-		user := new(model.User).Build(document.Data())
-		users = append(users, user)
-		//fmt.Println(user.DisplayName)
-	}
-	fmt.Println(count)
-
-	var query = "INSERT INTO app_user " + model.USER_INSERT_COLS + " VALUES"
-
-	anotherCounter := 0
-	for _, user := range users {
-		if anotherCounter == 0 {
-			query = query + user.StringForInsert()
-		} else {
-			query = query + "," + user.StringForInsert()
-		}
-		anotherCounter = anotherCounter + 1
+		result = append(result, document.Data())
 	}
 
-	//fmt.Println(query)
-	return query
-
-	//fmt.Println(len(sers))
-	//fmt.Println(count)
-
+	return result, nil
 }
 
 // INSERT INTO table_tags (tag) VALUES ('tag_a'),('tab_b'),('tag_c') ON DUPLICATE KEY UPDATE tag=tag; UPSERT QUERY EXAMPLE
