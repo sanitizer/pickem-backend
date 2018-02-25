@@ -5,26 +5,27 @@ import (
 	"log"
 	"github.com/sanitizer/cloud_sql_dao/dao/model"
 	"strconv"
+	//"fmt"
 )
 
 func main() {
-	rawData, err := dao.GetDataFromFireBase("competitions")
+	rawData, err := dao.GetDataFromFireBase("teams")
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	//fmt.Println(query)
+	//fmt.Println(rawData)
 	//dao.RunMigration()
 
-	query := BuildFromRawData(rawData, model.Competition{})
+	query := BuildFromRawData(rawData, model.Team{})
 	inserted, err := RunInsertQuery(query)
 
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	log.Println(strconv.Itoa(int(inserted)))
+	log.Println("inserted: " + strconv.Itoa(int(inserted)))
 }
 
 func BuildFromRawData(rawData []map[string]interface{}, entity model.DaoModel) string {

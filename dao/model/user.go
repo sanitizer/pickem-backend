@@ -8,7 +8,7 @@ import (
 
 const (
 	USER_INSERT_COLS = "(legacyId, battleNetId, discordId, displayName, email, gravatar, teamLogo, lastActive)"
-	USER_INSERT_PARTIAL_QUERY = "INSERT INTO app_user " + USER_INSERT_COLS + " "
+	USER_INSERT_PARTIAL_QUERY = "INSERT INTO app_user " + USER_INSERT_COLS + " VALUES "
 )
 
 type User struct {

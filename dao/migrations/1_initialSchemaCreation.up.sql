@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS app_user (
 
 CREATE TABLE IF NOT EXISTS team (
   id            INT NOT NULL AUTO_INCREMENT,
-  competitionId INT,
   name          VARCHAR(100),
   shortName     VARCHAR(3),
   logo          LONGTEXT,
