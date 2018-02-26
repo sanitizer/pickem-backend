@@ -23,10 +23,9 @@ CREATE TABLE IF NOT EXISTS team (
 CREATE TABLE IF NOT EXISTS player (
   id        INT NOT NULL AUTO_INCREMENT,
   name      VARCHAR(100),
-  firstName VARCHAR(50),
-  lastName  VARCHAR(50),
-  role      VARCHAR(20),
-  PRIMARY KEY (id)
+  fullName  VARCHAR(100),
+  PRIMARY KEY (id),
+  CONSTRAINT UC_NFN UNIQUE (name, fullName)
 );
 
 CREATE TABLE IF NOT EXISTS competition (
