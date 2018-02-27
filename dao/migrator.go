@@ -42,7 +42,7 @@ func RunMigration() {
 	}
 }
 
-func GetDataFromFireBase(entity string) ([]map[string]interface{}, error) {
+func GetDataFromFireBase(entity string) (map[string]map[string]interface{}, error) {
 	ctx := context.Background()
 	options := option.WithCredentialsFile("dao/config/firebase.json")
 	app, err := firebase.NewApp(ctx, nil, options)
@@ -60,11 +60,10 @@ func GetDataFromFireBase(entity string) ([]map[string]interface{}, error) {
 	defer client.Close()
 
 	iter := client.Collection(entity).Documents(ctx)
-	result := make([]map[string]interface{}, 0)
+	result := make(map[string]map[string]interface{}, 0)
 
 	for {
 		document, err := iter.Next()
-
 		if err == iterator.Done {
 			break
 		}
@@ -73,7 +72,7 @@ func GetDataFromFireBase(entity string) ([]map[string]interface{}, error) {
 			return nil, err
 		}
 
-		result = append(result, document.Data())
+		result[document.Ref.ID] = document.Data()
 	}
 
 	return result, nil

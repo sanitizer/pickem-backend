@@ -44,20 +44,22 @@ CREATE TABLE IF NOT EXISTS competition (
 
 CREATE TABLE IF NOT EXISTS league (
   id            INT          NOT NULL AUTO_INCREMENT,
-  name          VARCHAR(255) NOT NULL,
+  name          VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  description   LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   ownerId       INT          NOT NULL,
   competitionId INT          NOT NULL,
   isLocked      BOOLEAN               DEFAULT FALSE,
   isPublic      BOOLEAN               DEFAULT FALSE,
   maxUsers      INT                   DEFAULT 0,
   simpleMode    BOOLEAN               DEFAULT TRUE,
-  PRIMARY KEY (id, name, ownerId),
+  PRIMARY KEY (id),
   FOREIGN KEY (competitionId) REFERENCES competition (id)
     ON UPDATE CASCADE
     ON DELETE RESTRICT,
   FOREIGN KEY (ownerId) REFERENCES app_user (id)
     ON UPDATE CASCADE
-    ON DELETE RESTRICT
+    ON DELETE RESTRICT,
+  CONSTRAINT UC_ID_OWNERID_COMPETEID UNIQUE (id, competitionId, ownerId)
 );
 
 CREATE TABLE IF NOT EXISTS leaderboard (

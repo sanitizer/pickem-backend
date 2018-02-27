@@ -7,7 +7,7 @@ import (
 
 const (
 	PLAYER_INSERT_COLS = "(name, fullName)"
-	PLAYER_INSERT_PARTIAL_QUERY = "INSERT INTO team " + PLAYER_INSERT_COLS + " VALUES "
+	PLAYER_INSERT_PARTIAL_QUERY = "INSERT INTO player " + PLAYER_INSERT_COLS + " VALUES "
 )
 
 type Player struct {

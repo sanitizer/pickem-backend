@@ -8,22 +8,32 @@ import (
 )
 
 func main() {
-	rawData, err := dao.GetDataFromFireBase("teams")
+	rawData, err := dao.GetDataFromFireBase("leagues")
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
 	log.Println(rawData)
+	//dt := make([]map[string]interface{}, 0)
+
+	//for k, v := range rawData {
+	//	temp := v["data"].(map[string]interface{})
+	//	temp["id"] = k
+	//	dt = append(dt, temp)
+	//}
+
+	//log.Println(dt)
 	//dao.RunMigration()
 
-	//query := BuildFromRawData(rawData, model.Team{})
-	//inserted, err := RunInsertQuery(query)
+	//query := BuildFromRawData(dt, model.League{})
 
+	//query = query + " on duplicate key update name = name, fullName = fullName"
+
+	//inserted, err := RunInsertQuery(query)
 	//if err != nil {
 	//	log.Fatal(err.Error())
 	//}
-
 	//log.Println("inserted: " + strconv.Itoa(int(inserted)))
 }
 
