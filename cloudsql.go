@@ -8,28 +8,26 @@ import (
 )
 
 func main() {
-	//rawData, err := dao.GetDataFromFireBase("leaderboardSimpleStage2")
-
+	//rawData, err := dao.GetDataFromFireBase("leagueUsers")
+	//
 	//if err != nil {
 	//	log.Println(err.Error())
 	//}
-
+	//
 	//log.Println(rawData)
 	//dt := make([]map[string]interface{}, 0)
 	//
-	//for _, v := range rawData {
-	//	v["type"] = "SIMPLE"
-	//	v["stage"] = 2
+	//for k, v := range rawData {
+	//	v["id"] = k
 	//	dt = append(dt, v)
 	//}
 
 	//log.Println(dt)
 	//dao.RunMigration()
 
-	//query := BuildFromRawData(dt, model.LeaderBoard{})
-
-	//query = query + " on duplicate key update legacyLeagueId=legacyLeagueId"
-
+	//query := BuildFromRawData(dt, model.LeagueUser{})
+	//query = query + " on duplicate key update isActive=isActive"
+	//
 	//inserted, err := RunInsertQuery(query)
 	//if err != nil {
 	//	log.Fatal(err.Error())
