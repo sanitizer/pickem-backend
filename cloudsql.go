@@ -2,33 +2,33 @@ package main
 
 import (
 	"github.com/sanitizer/cloud_sql_dao/dao"
-	"log"
 	"github.com/sanitizer/cloud_sql_dao/dao/model"
+	//"log"
 	//"strconv"
 )
 
 func main() {
-	rawData, err := dao.GetDataFromFireBase("leagues")
+	//rawData, err := dao.GetDataFromFireBase("leaderboardSimpleStage2")
 
-	if err != nil {
-		log.Println(err.Error())
-	}
+	//if err != nil {
+	//	log.Println(err.Error())
+	//}
 
-	log.Println(rawData)
+	//log.Println(rawData)
 	//dt := make([]map[string]interface{}, 0)
-
-	//for k, v := range rawData {
-	//	temp := v["data"].(map[string]interface{})
-	//	temp["id"] = k
-	//	dt = append(dt, temp)
+	//
+	//for _, v := range rawData {
+	//	v["type"] = "SIMPLE"
+	//	v["stage"] = 2
+	//	dt = append(dt, v)
 	//}
 
 	//log.Println(dt)
 	//dao.RunMigration()
 
-	//query := BuildFromRawData(dt, model.League{})
+	//query := BuildFromRawData(dt, model.LeaderBoard{})
 
-	//query = query + " on duplicate key update name = name, fullName = fullName"
+	//query = query + " on duplicate key update legacyLeagueId=legacyLeagueId"
 
 	//inserted, err := RunInsertQuery(query)
 	//if err != nil {
