@@ -5,6 +5,7 @@ import (
 	"github.com/sanitizer/cloud_sql_dao/dao/model"
 	"log"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -14,19 +15,49 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	log.Println(rawData)
-	dt := make([]map[string]interface{}, 0)
+	//log.Println(rawData)
+	dt := make(map[string]bool)
 
 	for k, v := range rawData {
-		v["id"] = k
-		dt = append(dt, v)
+		var away, home string
+		if v["awayScore"] == nil {
+			away = "0"
+		} else {
+			away = v["awayScore"].(string)
+		}
+
+		if v["homeScore"] == nil {
+			home = "0"
+		} else {
+			if _, ok := v["homeScore"].(int64); ok {
+				home = strconv.Itoa(int(v["homeScore"].(int64)))
+			} else {
+				home = v["homeScore"].(string)
+			}
+		}
+		dt[k + ":" + home + ":" + away] = true
+		//v["id"] = k
+		//dt = append(dt, v)
 	}
 
-	log.Println(dt)
-	//dao.RunMigration()
+	query := "INSERT INTO match_stat (matchId, homeScore, awayScore) VALUES "
+	anotherCounter := 0
+	for k, _ := range dt {
+		splitted := strings.Split(k, ":")
+		if anotherCounter == 0 {
+			query = query + "((select id from game_match where legacyId = \"" + splitted[0] + "\"), " + splitted[1] + ",  " + splitted[2] + ")"
+		} else {
+			query = query + "," + "((select id from game_match where legacyId = \"" + splitted[0] + "\"), " + splitted[1] + ",  " + splitted[2] + ")"
+		}
+		anotherCounter = anotherCounter + 1
+	}
+	//log.Println(query)
 
-	query := BuildFromRawData(dt, model.Match{})
-	query = query + " on duplicate key update start=start"
+	//log.Println(dt)
+	//dao.RunMigration()
+	//
+	//query := BuildFromRawData(dt, model.LeagueUser{})
+	query = query + " on duplicate key update homeScore=homeScore"
 
 	inserted, err := RunInsertQuery(query)
 	if err != nil {

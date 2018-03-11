@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS match_map_score (
   mapId     INT        NOT NULL,
   homeScore INT DEFAULT 0,
   awayScore INT DEFAULT 0,
-  PRIMARY KEY (matchId, mapId),
+  CONSTRAINT UC_MATCH_MAP UNIQUE (matchId, mapId),
   FOREIGN KEY (matchId) REFERENCES game_match (id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
@@ -194,10 +194,12 @@ CREATE TABLE IF NOT EXISTS match_map_score (
     ON DELETE CASCADE
 );
 
+--done
 CREATE TABLE IF NOT EXISTS match_stat (
   matchId   BIGINT(20) NOT NULL,
   homeScore INT DEFAULT 0,
   awayScore INT DEFAULT 0,
+  CONSTRAINT UC_MATCH_STAT UNIQUE (matchId),
   FOREIGN KEY (matchId) REFERENCES game_match (id)
     ON UPDATE CASCADE
     ON DELETE RESTRICT
