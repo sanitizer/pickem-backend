@@ -5,46 +5,28 @@ import (
 	"github.com/sanitizer/cloud_sql_dao/dao/model"
 	"log"
 	"strconv"
-	"strings"
 )
 
 func main() {
-	rawData, err := dao.GetDataFromFireBase("teams")
+	rawData, err := dao.GetDataFromFireBase("matches")
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	//log.Println(rawData)
-	dt := make(map[string]bool)
+	log.Println(rawData)
+	dt := make([]map[string]interface{}, 0)
 
 	for k, v := range rawData {
-		if v["compId"] != nil {
-			lId := v["compId"].(string)
-			dt[lId + ":" + k] = true
-		}
-		//v["id"] = k
-		//dt = append(dt, v)
+		v["id"] = k
+		dt = append(dt, v)
 	}
 
-	query := "INSERT ignore INTO team_competition (teamId, competitionId) VALUES "
-	anotherCounter := 0
-	for k, _ := range dt {
-		splitted := strings.Split(k, ":")
-		if anotherCounter == 0 {
-			query = query + "((select id from team where legacyId = \"" + splitted[1] + "\"), (select id from competition where legacyId = \"" + splitted[0] + "\"))"
-		} else {
-			query = query + "," + "((select id from team where legacyId = \"" + splitted[1] + "\"), (select id from competition where legacyId = \"" + splitted[0] + "\"))"
-		}
-		anotherCounter = anotherCounter + 1
-	}
-	//log.Println(query)
-
-	//log.Println(dt)
+	log.Println(dt)
 	//dao.RunMigration()
-	//
-	//query := BuildFromRawData(dt, model.LeagueUser{})
-	query = query + " on duplicate key update teamId=teamId"
+
+	query := BuildFromRawData(dt, model.Match{})
+	query = query + " on duplicate key update start=start"
 
 	inserted, err := RunInsertQuery(query)
 	if err != nil {

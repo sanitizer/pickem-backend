@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS game_map (
   CONSTRAINT UC_GAME_MAP UNIQUE (name, type)
 );
 
+--done
 CREATE TABLE IF NOT EXISTS game_match (
   id            BIGINT(20) NOT NULL AUTO_INCREMENT,
   competitionId INT        NOT NULL,
@@ -107,7 +108,8 @@ CREATE TABLE IF NOT EXISTS game_match (
     ON DELETE RESTRICT,
   FOREIGN KEY (homeTeamId) REFERENCES team (id)
     ON UPDATE CASCADE
-    ON DELETE RESTRICT
+    ON DELETE RESTRICT,
+  CONSTRAINT UC_COMPETE_MATCH_TEAMS UNIQUE (competitionId, awayTeamId, homeTeamId, stage, week, start)
 );
 
 -- compound tables
