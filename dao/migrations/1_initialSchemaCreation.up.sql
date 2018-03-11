@@ -140,10 +140,11 @@ CREATE TABLE IF NOT EXISTS leaderboard_leagueuser_points (
     ON DELETE CASCADE
 );
 
+--done
 CREATE TABLE IF NOT EXISTS team_competition (
   teamId        INT NOT NULL,
   competitionId INT NOT NULL,
-  PRIMARY KEY (teamId, competitionId),
+  CONSTRAINT UC_TEAM_COMPETE UNIQUE (teamId, competitionId),
   FOREIGN KEY (teamId) REFERENCES team (id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
