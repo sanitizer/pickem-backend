@@ -1,5 +1,6 @@
 START TRANSACTION;
 
+--done
 CREATE TABLE IF NOT EXISTS app_user (
   id          INT          NOT NULL AUTO_INCREMENT,
   battleNetId VARCHAR(100),
@@ -12,6 +13,7 @@ CREATE TABLE IF NOT EXISTS app_user (
   PRIMARY KEY (id)
 );
 
+--done
 CREATE TABLE IF NOT EXISTS team (
   id            INT NOT NULL AUTO_INCREMENT,
   name          VARCHAR(100),
@@ -20,6 +22,7 @@ CREATE TABLE IF NOT EXISTS team (
   PRIMARY KEY (id)
 );
 
+--done
 CREATE TABLE IF NOT EXISTS player (
   id        INT NOT NULL AUTO_INCREMENT,
   name      VARCHAR(100),
@@ -28,6 +31,7 @@ CREATE TABLE IF NOT EXISTS player (
   CONSTRAINT UC_NFN UNIQUE (name, fullName)
 );
 
+--done
 CREATE TABLE IF NOT EXISTS competition (
   id          INT          NOT NULL AUTO_INCREMENT,
   winstonsId  INT          NOT NULL,
@@ -42,6 +46,7 @@ CREATE TABLE IF NOT EXISTS competition (
   PRIMARY KEY (id)
 );
 
+--done
 CREATE TABLE IF NOT EXISTS league (
   id            INT          NOT NULL AUTO_INCREMENT,
   name          VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
@@ -62,6 +67,7 @@ CREATE TABLE IF NOT EXISTS league (
   CONSTRAINT UC_ID_OWNERID_COMPETEID UNIQUE (id, competitionId, ownerId)
 );
 
+--done
 CREATE TABLE IF NOT EXISTS leaderboard (
   id       INT          NOT NULL AUTO_INCREMENT,
   type     VARCHAR(255) NOT NULL,
@@ -103,6 +109,7 @@ CREATE TABLE IF NOT EXISTS game_match (
 );
 
 -- compound tables
+--done
 CREATE TABLE IF NOT EXISTS league_user (
   id       INT NOT NULL AUTO_INCREMENT,
   userId   INT NOT NULL,
@@ -142,25 +149,23 @@ CREATE TABLE IF NOT EXISTS team_competition (
     ON DELETE CASCADE
 );
 
+-- done
 CREATE TABLE IF NOT EXISTS team_player_role (
-  id       INT         NOT NULL AUTO_INCREMENT,
-  teamId   INT         NOT NULL,
-  playerId INT         NOT NULL,
+  teamPlayerId   INT         NOT NULL,
   role     VARCHAR(50) NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (teamId) REFERENCES team (id)
+  FOREIGN KEY (teamPlayerId) REFERENCES team_player (id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
-  FOREIGN KEY (playerId) REFERENCES player (id)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE,
-  CONSTRAINT UC_TEAM_PLAYER_ROLE UNIQUE (teamId, playerId, role)
+  CONSTRAINT UC_TEAM_PLAYER_ROLE UNIQUE (teamPlayerId, role)
 );
 
+--done
 CREATE TABLE IF NOT EXISTS team_player (
+  id       INT         NOT NULL AUTO_INCREMENT,
   teamId   INT NOT NULL,
   playerId INT NOT NULL,
-  PRIMARY KEY (teamId, playerId),
+  PRIMARY KEY (id),
+  CONSTRAINT UC_TEAM_PLAYER UNIQUE (teamId, playerId),
   FOREIGN KEY (teamId) REFERENCES team (id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
