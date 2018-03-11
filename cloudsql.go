@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	rawData, err := dao.GetDataFromFireBase("teams")
+	rawData, err := dao.GetDataFromFireBase("matches")
 
 	if err != nil {
 		log.Println(err.Error())
@@ -19,12 +19,12 @@ func main() {
 	dt := make(map[string]bool)
 
 	for _, v := range rawData {
-		log.Println(v["id"])
-		if v["roster"] != nil {
-			for _, val  := range v["roster"].([]interface{}) {
-				playerName := val.(map[string]interface{})["player"].(string)
-				role := val.(map[string]interface{})["role"].(string)
-				dt[v["id"].(string) + ":" + strings.ToLower(playerName) + ":" + strings.ToLower(role)] = true
+		if v["maps"] != nil {
+			for _, val  := range v["maps"].([]interface{}) {
+				name := val.(map[string]interface{})["name"].(string)
+				tp := val.(map[string]interface{})["type"].(string)
+				dt[name + ":" + tp] = true
+				log.Println(dt)
 			}
 
 		}
@@ -33,30 +33,30 @@ func main() {
 		//dt = append(dt, v)
 	}
 
-	query := "INSERT INTO team_player_role (teamPlayerId, role) VALUES "
-	anotherCounter := 0
-	for k, _ := range dt {
-		splitted := strings.Split(k, ":")
-		if anotherCounter == 0 {
-			query = query + "((select id from team_player where teamId = (select id from team where legacyId = '" + splitted[0] + "') and playerId = (select id from player where LOWER(name) = '" + splitted[1] + "')), '" + splitted[2] + "')"
-		} else {
-			query = query + "," + "((select id from team_player where teamId = (select id from team where legacyId = '" + splitted[0] + "') and playerId = (select id from player where LOWER(name) = '" + splitted[1] + "')), '" + splitted[2] + "')"
-		}
-		anotherCounter = anotherCounter + 1
-	}
+	//query := "INSERT INTO game_map (name, type) VALUES "
+	//anotherCounter := 0
+	//for k, _ := range dt {
+	//	splitted := strings.Split(k, ":")
+	//	if anotherCounter == 0 {
+	//		query = query + "('" + splitted[0] + "', '" + splitted[1] + "')"
+	//	} else {
+	//		query = query + "," + "('" + splitted[0] + "', '" + splitted[1] + "')"
+	//	}
+	//	anotherCounter = anotherCounter + 1
+	//}
 	//log.Println(query)
 
 	//log.Println(dt)
 	//dao.RunMigration()
 	//
 	//query := BuildFromRawData(dt, model.LeagueUser{})
-	query = query + " on duplicate key update role=role"
-	//
-	inserted, err := RunInsertQuery(query)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	log.Println("inserted: " + strconv.Itoa(int(inserted)))
+	//query = query + " on duplicate key update name=name"
+
+	//inserted, err := RunInsertQuery(query)
+	//if err != nil {
+	//	log.Fatal(err.Error())
+	//}
+	//log.Println("inserted: " + strconv.Itoa(int(inserted)))
 }
 
 func BuildFromRawData(rawData []map[string]interface{}, entity model.DaoModel) string {
