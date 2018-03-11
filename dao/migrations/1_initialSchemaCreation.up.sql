@@ -15,11 +15,12 @@ CREATE TABLE IF NOT EXISTS app_user (
 
 --done
 CREATE TABLE IF NOT EXISTS team (
-  id            INT NOT NULL AUTO_INCREMENT,
-  name          VARCHAR(100),
-  shortName     VARCHAR(3),
-  logo          LONGTEXT,
-  PRIMARY KEY (id)
+  id        INT NOT NULL AUTO_INCREMENT,
+  name      VARCHAR(100),
+  shortName VARCHAR(3),
+  logo      LONGTEXT,
+  PRIMARY KEY (id),
+  CONSTRAINT UC_NAME_TEAM UNIQUE (name, shortName)
 );
 
 --done
@@ -179,7 +180,7 @@ CREATE TABLE IF NOT EXISTS team_player (
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
-
+ -- dont see valid data for this table yet
 CREATE TABLE IF NOT EXISTS match_map_score (
   matchId   BIGINT(20) NOT NULL,
   mapId     INT        NOT NULL,
@@ -227,7 +228,8 @@ CREATE TABLE IF NOT EXISTS match_pick (
     ON DELETE RESTRICT,
   FOREIGN KEY (loserTeamId) REFERENCES team (id)
     ON UPDATE CASCADE
-    ON DELETE RESTRICT
+    ON DELETE RESTRICT,
+  CONSTRAINT UC_MATCH_PICK UNIQUE (matchId, leagueUserId)
 );
 
 CREATE TABLE IF NOT EXISTS match_map_pick (
@@ -241,7 +243,8 @@ CREATE TABLE IF NOT EXISTS match_map_pick (
     ON DELETE CASCADE,
   FOREIGN KEY (mapId) REFERENCES game_map (id)
     ON UPDATE CASCADE
-    ON DELETE RESTRICT
+    ON DELETE RESTRICT,
+  CONSTRAINT UC_MATCH_MAP_PICK UNIQUE (matchPickId, mapId)
 );
 
 COMMIT;
