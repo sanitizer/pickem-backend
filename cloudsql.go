@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	rawData, err := dao.GetDataFromFireBase("matches")
+	rawData, err := dao.GetDataFromFireBase("leaderboardSimpleStage2")
 
 	if err != nil {
 		log.Println(err.Error())
@@ -18,29 +18,24 @@ func main() {
 	//log.Println(rawData)
 	dt := make(map[string]bool)
 
-	for _, v := range rawData {
-		if v["maps"] != nil {
-			for _, val  := range v["maps"].([]interface{}) {
-				if val.(map[string]interface{})["name"] != nil {
-					name := val.(map[string]interface{})["name"].(string)
-					tp := val.(map[string]interface{})["type"].(string)
-					dt[name + ":" + tp] = true
-				}
-			}
-
+	for k, v := range rawData {
+		if v["leagueId"] != nil {
+			lId := v["leagueId"].(string)
+			p := v["points"].(int64)
+			dt[lId + ":" + k + ":" + strconv.Itoa(int(p))] = true
 		}
 		//v["id"] = k
 		//dt = append(dt, v)
 	}
 
-	query := "INSERT INTO game_map (name, type) VALUES "
+	query := "INSERT ignore INTO leaderboard_leagueuser_points (leaderboardId, leagueUserId, points) VALUES "
 	anotherCounter := 0
 	for k, _ := range dt {
 		splitted := strings.Split(k, ":")
 		if anotherCounter == 0 {
-			query = query + "(\"" + splitted[0] + "\", \"" + splitted[1] + "\")"
+			query = query +"(ifnull((select id from leaderboard where type = 'SIMPLE' and stage = 2 and leagueId = (select id from league where legacyId = \"" + splitted[0] + "\")), -1), ifnull((select id from league_user where userId = (select id from app_user where legacyId = \"" + splitted[1] + "\") and leagueId = (select id from league where legacyId = \"" + splitted[0] + "\")), -1), " + splitted[2] + ")"
 		} else {
-			query = query + "," + "(\"" + splitted[0] + "\", \"" + splitted[1] + "\")"
+			query = query + "," + "(ifnull((select id from leaderboard where type = 'SIMPLE' and stage = 2 and leagueId = (select id from league where legacyId = \"" + splitted[0] + "\")), -1), ifnull((select id from league_user where userId = (select id from app_user where legacyId = \"" + splitted[1] + "\") and leagueId = (select id from league where legacyId = \"" + splitted[0] + "\")), -1), " + splitted[2] + ")"
 		}
 		anotherCounter = anotherCounter + 1
 	}
@@ -50,7 +45,7 @@ func main() {
 	//dao.RunMigration()
 	//
 	//query := BuildFromRawData(dt, model.LeagueUser{})
-	query = query + " on duplicate key update name=name"
+	query = query + " on duplicate key update points=points"
 
 	inserted, err := RunInsertQuery(query)
 	if err != nil {

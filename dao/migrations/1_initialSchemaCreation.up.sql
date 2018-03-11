@@ -126,11 +126,12 @@ CREATE TABLE IF NOT EXISTS league_user (
     ON DELETE RESTRICT
 );
 
+--done
 CREATE TABLE IF NOT EXISTS leaderboard_leagueuser_points (
   leaderboardId INT NOT NULL,
   leagueUserId  INT NOT NULL,
   points        INT DEFAULT 0,
-  PRIMARY KEY (leaderboardId, leagueUserId),
+  CONSTRAINT UC_LEADERBOARD_LEAGUEUSER_POINTS UNIQUE (leaderboardId, leagueUserId),
   FOREIGN KEY (leagueUserId) REFERENCES league_user (id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
