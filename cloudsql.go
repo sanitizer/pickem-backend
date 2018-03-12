@@ -9,45 +9,46 @@ import (
 )
 
 func main() {
-	rawData, err := dao.GetDataFromFireBase("matches")
+	rawData, err := dao.GetDataFromFireBase("teams")
 
 	if err != nil {
 		log.Println(err.Error())
 	}
 
-	//log.Println(rawData)
+	log.Println(rawData)
 	dt := make(map[string]bool)
 
 	for k, v := range rawData {
-		var away, home string
-		if v["awayScore"] == nil {
-			away = "0"
-		} else {
-			away = v["awayScore"].(string)
-		}
-
-		if v["homeScore"] == nil {
-			home = "0"
-		} else {
-			if _, ok := v["homeScore"].(int64); ok {
-				home = strconv.Itoa(int(v["homeScore"].(int64)))
-			} else {
-				home = v["homeScore"].(string)
+		log.Println(v["id"])
+		if v["roster"] != nil {
+			for _, val  := range v["roster"].([]interface{}) {
+				playerName := val.(map[string]interface{})["player"].(string)
+				dt[k + ":" + strings.ToLower(playerName)] = true
 			}
+
 		}
-		dt[k + ":" + home + ":" + away] = true
+		//dt[v["id"] + ":x"] = true
 		//v["id"] = k
 		//dt = append(dt, v)
 	}
 
-	query := "INSERT INTO match_stat (matchId, homeScore, awayScore) VALUES "
+	teams := make(map[string]string)
+
+	for k, v := range rawData {
+		teams[k] = strings.ToLower(v["name"].(string))
+	}
+
+	log.Println(teams)
+	log.Println(len(teams))
+
+	query := "INSERT INTO team_player (teamId, playerId) VALUES "
 	anotherCounter := 0
 	for k, _ := range dt {
 		splitted := strings.Split(k, ":")
 		if anotherCounter == 0 {
-			query = query + "((select id from game_match where legacyId = \"" + splitted[0] + "\"), " + splitted[1] + ",  " + splitted[2] + ")"
+			query = query + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from player where LOWER(name) = \"" + splitted[1] + "\"))"
 		} else {
-			query = query + "," + "((select id from game_match where legacyId = \"" + splitted[0] + "\"), " + splitted[1] + ",  " + splitted[2] + ")"
+			query = query + "," + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from player where LOWER(name) = \"" + splitted[1] + "\"))"
 		}
 		anotherCounter = anotherCounter + 1
 	}
@@ -57,8 +58,8 @@ func main() {
 	//dao.RunMigration()
 	//
 	//query := BuildFromRawData(dt, model.LeagueUser{})
-	query = query + " on duplicate key update homeScore=homeScore"
-
+	query = query + " on duplicate key update playerId=playerId"
+	//
 	inserted, err := RunInsertQuery(query)
 	if err != nil {
 		log.Fatal(err.Error())
