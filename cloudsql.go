@@ -18,10 +18,15 @@ func main() {
 	log.Println(rawData)
 	dt := make(map[string]bool)
 
-	for k, v := range rawData {
-		if v["compId"] != nil {
-			compId := v["compId"].(string)
-			dt[k + ":" + compId] = true
+	for _, v := range rawData {
+		log.Println(v["id"])
+		if v["roster"] != nil {
+			for _, val  := range v["roster"].([]interface{}) {
+				playerName := val.(map[string]interface{})["player"].(string)
+				role := val.(map[string]interface{})["role"].(string)
+				dt[v["id"].(string) + ":" + strings.ToLower(playerName) + ":" + strings.ToLower(role)] = true
+			}
+
 		}
 		//dt[v["id"] + ":x"] = true
 		//v["id"] = k
@@ -37,14 +42,14 @@ func main() {
 	log.Println(teams)
 	log.Println(len(teams))
 
-	query := "INSERT ignore INTO team_competition (teamId, competitionId) VALUES "
+	query := "INSERT INTO team_player_role (teamPlayerId, role) VALUES "
 	anotherCounter := 0
 	for k, _ := range dt {
 		splitted := strings.Split(k, ":")
 		if anotherCounter == 0 {
-			query = query + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from competition where legacyId = \"" + splitted[1] + "\"))"
+			query = query + "((select id from team_player where teamId = (select id from team where LOWER(name) = '" + teams[splitted[0]] + "') and playerId = (select id from player where LOWER(name) = '" + splitted[1] + "')), '" + splitted[2] + "')"
 		} else {
-			query = query + "," + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from competition where legacyId = \"" + splitted[1] + "\"))"
+			query = query + "," + "((select id from team_player where teamId = (select id from team where LOWER(name) = '" + teams[splitted[0]] + "') and playerId = (select id from player where LOWER(name) = '" + splitted[1] + "')), '" + splitted[2] + "')"
 		}
 		anotherCounter = anotherCounter + 1
 	}
@@ -54,7 +59,7 @@ func main() {
 	//dao.RunMigration()
 	//
 	//query := BuildFromRawData(dt, model.LeagueUser{})
-	query = query + " on duplicate key update teamId=teamId"
+	query = query + " on duplicate key update role=role"
 	//
 	inserted, err := RunInsertQuery(query)
 	if err != nil {
