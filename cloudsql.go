@@ -19,13 +19,9 @@ func main() {
 	dt := make(map[string]bool)
 
 	for k, v := range rawData {
-		log.Println(v["id"])
-		if v["roster"] != nil {
-			for _, val  := range v["roster"].([]interface{}) {
-				playerName := val.(map[string]interface{})["player"].(string)
-				dt[k + ":" + strings.ToLower(playerName)] = true
-			}
-
+		if v["compId"] != nil {
+			compId := v["compId"].(string)
+			dt[k + ":" + compId] = true
 		}
 		//dt[v["id"] + ":x"] = true
 		//v["id"] = k
@@ -41,14 +37,14 @@ func main() {
 	log.Println(teams)
 	log.Println(len(teams))
 
-	query := "INSERT INTO team_player (teamId, playerId) VALUES "
+	query := "INSERT ignore INTO team_competition (teamId, competitionId) VALUES "
 	anotherCounter := 0
 	for k, _ := range dt {
 		splitted := strings.Split(k, ":")
 		if anotherCounter == 0 {
-			query = query + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from player where LOWER(name) = \"" + splitted[1] + "\"))"
+			query = query + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from competition where legacyId = \"" + splitted[1] + "\"))"
 		} else {
-			query = query + "," + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from player where LOWER(name) = \"" + splitted[1] + "\"))"
+			query = query + "," + "((select id from team where LOWER(name) = \"" + teams[splitted[0]] + "\"), (select id from competition where legacyId = \"" + splitted[1] + "\"))"
 		}
 		anotherCounter = anotherCounter + 1
 	}
@@ -58,7 +54,7 @@ func main() {
 	//dao.RunMigration()
 	//
 	//query := BuildFromRawData(dt, model.LeagueUser{})
-	query = query + " on duplicate key update playerId=playerId"
+	query = query + " on duplicate key update teamId=teamId"
 	//
 	inserted, err := RunInsertQuery(query)
 	if err != nil {
